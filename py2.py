@@ -31,10 +31,7 @@ builtins = ['ArithmeticError', 'AssertionError', 'AttributeError', 'BaseExceptio
 
 
 def ensure_bytes(data):
-    if sys.version_info[0] == 3:
-        return data.encode()
-    else:
-        return data
+    return data.encode() if sys.version_info[0] == 3 else data
 
 
 def dump_any(name, v, file, intendent):
@@ -61,7 +58,7 @@ def dump_module(module, file):
 
 
 def dump_function(func, file, intendent):
-    file.write(ensure_bytes("    " * intendent + "def %s(" % func.__name__))
+    file.write(ensure_bytes("    " * intendent + f"def {func.__name__}("))
     doc = func.__doc__
     file.write(ensure_bytes("*args, **kwargs):\r\n"))
     file.write(
@@ -72,7 +69,7 @@ def dump_class(cls, file, intendent):
     file.write(ensure_bytes("    " * intendent + "class %s:\r\n" % cls.__name__))
     file.write(ensure_bytes("    " * (intendent + 1) + "\"\"\"%s\"\"\"\r\n" % cls.__doc__))
     for k in dir(cls):
-        if k != "__doc__" and k != type and k != "__class__":
+        if k not in ["__doc__", type, "__class__"]:
             v = getattr(cls, k, None)
             if v is not None:
                 dump_any(k, v, file, intendent + 1)
